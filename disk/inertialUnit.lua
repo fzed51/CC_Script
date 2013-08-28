@@ -22,9 +22,7 @@ function inertialUnit.__tostring(self)
 	return "[ Object inertialUnit {x : ".. self.x ..", y : ".. self.y ..", z : ".. self.z ..", delta : ".. self.d .."} ]"
 end
 function inertialUnit:getPos()
-  local o = {}
-  o.x, o.y, o.z, o.d = self.x, self.y, self.z, self.d
-  return o
+  return self.x, self.y, self.z, self.d
 end
 function inertialUnit:setPos(x, y, z, d)
   self.x = x
