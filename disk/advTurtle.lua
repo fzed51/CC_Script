@@ -307,53 +307,62 @@ function refuel()
 		print( "Retour au tunnel." )
 	end
 end
-function tryUp()
+function tryUp(autoDig)
 	myDebug('tryUp()')
 	refuel()
-	while not turtle.up() do
-		if turtle.detectUp() then
+	local try = 20
+	while try > 0 and not turtle.up() do
+		if autoDig and turtle.detectUp() then
 			if not tryDigUp() then
 				return false
 			end
 		elseif turtle.attackUp() then
 			collect()
+			try=try-1
 		else
 			sleep( 0.5 )
+			try=try-1
 		end
 	end
-	return true
+	if try>0 then return true else return false end
 end
-function tryDown()
+function tryDown(autoDig)
 	myDebug('tryDown()')
 	refuel()
-	while not turtle.down() do
-		if turtle.detectDown() then
+	local try = 20
+	while try > 0 and not turtle.down() do
+		if autoDig and turtle.detectDown() then
 			if not tryDigDown() then
 				return false
 			end
 		elseif turtle.attackDown() then
 			collect()
+			try=try-1
 		else
 			sleep( 0.5 )
+			try=try-1
 		end
 	end
-	return true
+	if try>0 then return true else return false end
 end
-function tryForward()
+function tryForward(autoDig)
 	myDebug('tryForward()')
 	refuel()
-	while not turtle.forward() do
-		if turtle.detect() then
+	local try = 20
+	while try > 0 and not turtle.forward() do
+		if autoDig and turtle.detect() then
 			if not tryDig() then
 				return false
 			end
 		elseif turtle.attack() then
 			collect()
+			try=try-1
 		else
 			sleep( 0.5 )
+			try=try-1
 		end
 	end
-	return true
+	if try>0 then return true else return false end
 end
 function turnLeft()
 	myDebug('turnLeft()')
