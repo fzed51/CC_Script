@@ -14,7 +14,7 @@
 
 dofile('advTurtle') -- http://pastebin.com/7mLzefhQ
 
-inventaire
+-- inventaire
 item.add('coal',1,64)
 item.add('cobblestone',2,64)
 
@@ -25,6 +25,9 @@ end
 local function makePlan( l )
 	print("Creation d'un plan pour un pont de "..l.."m.")
 	local plan = {}
+	-- calcul hauteur max d'un pilier
+	local hMax = 63
+	if l*2 > hMax then hMax = l*2 end
 	-- calcul longueur d'une arche
 	local tailles,lArche = {19,18,17,16,15,14,13,12,11,10},0
 	local r = tailles[1]
@@ -37,12 +40,12 @@ local function makePlan( l )
 	print('Le pont aura des arches de '..lArche..'m de long.')
 	local nbArche = math.ceil(l/lArche)
 	for arche = 1, nbArche do
-		plan[#plan+1] = 77
+		plan[#plan+1] = hMax
 		for position = -1*((lArche-3)/2), ((lArche-3)/2) do
 			local pos, rArche =math.abs(position), (lArche-2)/2
 			plan[#plan+1] = 2 + ( rArche - round(( rArche^2 - pos^2 )^0.5 ))
 		end
-		plan[#plan+1] = 77
+		plan[#plan+1] = hMax
 	end
 	while #plan > l do
 		if #plan%2 == 0 then
@@ -58,7 +61,7 @@ local function construitSection( epaisseur )
 	local dig  = 0
 	local stop = false
 	while not stop and ( alt > -2 or dig < 2 ) and epaisseur + alt > 0 do
-		if detectDown() then
+		if turtle.detectDown() then
 			dig = dig + 1
 		else 
 			dig = 0
@@ -85,7 +88,7 @@ local function construitSection( epaisseur )
 	end
 end
 local function countBlock( plan, idx )
-	local nbBlock
+	local nbBlock = 0
 	if idx == nil or idx > #plan then idx = #plan end
 	for i = 1, idx do
 		nbBlock = nbBlock + plan[i]
@@ -130,11 +133,11 @@ local function bridge()
 	turnBack()
 	local plan = makePlan( longueurPont )
 	local nbBlockTotal = countBlock( plan )
-	print ('DÃ©but de la construction du pont')
-	print ('avancement : 0%')
+	print ('Début de la construction du pont')
 	for p = longueurPont, 1, -1 do
 		local nbBlock = countBlock( plan, p )
-		if itemCount( item.cobblestone ) < plan[p] then
+		print ('avancement : '..tostring(round((nbBlockTotal-nbBlock)*100/nbBlockTotal))..'%')
+		if itemCount( item.cobblestone ) < (plan[p]+4) then
 			refeelInv(p)
 		end
 		tryForward()
