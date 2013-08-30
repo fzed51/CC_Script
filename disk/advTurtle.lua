@@ -110,18 +110,15 @@ function trySelect( slot )
 		if (s ~= slot) then
 			if turtle.compareTo(s) then
 				slots[#slots+1] = s
-				nbItem = nbItem + turtle.getItemCount(s)
 			end
 		end
 	end
-	slots[#slots+1] = slot
-	nbItem = nbItem + turtle.getItemCount(slot)
-	
-	if nbItem > 1 then
+	slots[#slots+1] = slot	
+	if slots[1] ~= slot or turtle.getItemCount(slot) > 1 then
 		select(slots[1])
 		return true
 	else 
-		print("plus de "..(item[slot] or slot))
+		print("plus de ".. (item[slot] or slot) )
 		return false
 	end
 end
@@ -130,6 +127,21 @@ function drop( slot )
 end
 function tryDropAll()
 
+end
+function itemCount( slot )
+	local oldSlot, nbItem = activSlot, 0
+	select(slot)
+	for s = 1,16 do
+		if s ~= slot then
+			if turtle.compareTo(s) then
+				nbItem = turtle.getItemCount(s)
+			end
+		else
+			nbItem = turtle.getItemCount(slot)
+		end
+	end
+	select(oldSlot)
+	return nbItem
 end
 
 --[[ fonction d'utilisation de l'inventaire ]]--
