@@ -4,7 +4,7 @@
 | version : 2
 | Auteur : fzed51
 | git : https://github.com/fzed51/CC_Script/blob/master/disk/Bridge_2.lua
-| pastebin : 
+| pastebin : http://pastebin.com/4DZfqyQ6
 +----------------------------------------------------------------------------+
 | tag : [lua] [MC] [MineCraft] [CC] [ComputerCraft] [Turtle]
 | Descript :

@@ -1,3 +1,17 @@
+--[[
++----------------------------------------------------------------------------+
+| advTurtle
+| version : 2.5
+| Auteur : fzed51
+| git : https://github.com/fzed51/CC_Script/blob/master/disk/advTurtle.lua
+| pastebin : http://pastebin.com/7mLzefhQ
++----------------------------------------------------------------------------+
+| tag : [lua] [MC] [MineCraft] [CC] [ComputerCraft] [Turtle]
+| Descript :
+| bibliotèque de fonction pour la turtle.
++----------------------------------------------------------------------------+
+]]--
+
 --[[ Fonction de Debug ]]--
 local modeDebug, fileDebug = false, nil
 function setDebug(activ, file)
