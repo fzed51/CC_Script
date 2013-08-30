@@ -54,6 +54,38 @@ local function makePlan( l )
 	return plan
 end
 
+local function construitSection( epaisseur )	
+	local alt  = 0
+	local dig  = 0
+	local stop = false
+	while not stop and ( alt > -2 or dig < 2 ) and epaisseur + alt > 0 do
+		if detectDown() then
+			dig = dig + 1
+		else 
+			dig = 0
+		end
+		if tryDown() then
+			alt = alt - 1
+		else
+			stop = true
+		end
+	end
+	while alt < 0 do
+		if alt >= -2 then
+			turnLeft()
+			tryDig()
+			tryPlace(item.cobblestone)
+			turnBack()
+			tryDig()
+			tryPlace(item.cobblestone)
+			turnLeft()
+		end
+		tryUp()
+		alt = alt + 1
+		tryPlaceDown(item.cobblestone)
+	end
+end
+
 local function printPlan( p )
 	print('Plan pour un pont de '..#p..'m de long.')
 	for _, n in ipairs( p ) do
