@@ -8,7 +8,7 @@
 +----------------------------------------------------------------------------+
 | tag : [lua] [MC] [MineCraft] [CC] [ComputerCraft] [Turtle]
 | Descript :
-| bibliotÃ¨que de fonction pour la turtle.
+| bibliotèque de fonction pour la turtle.
 +----------------------------------------------------------------------------+
 ]]--
 
@@ -60,7 +60,7 @@ function debugVal( o , niveau)
 	return oStr
 end
 
---[[ ParamÃ¨tes & fonction de l'inventaire ]]--
+--[[ Paramètes & fonction de l'inventaire ]]--
 item = {
 	['safe'] = {},
 	['add'] = function(nom, slot, minQte)
@@ -107,7 +107,7 @@ local collected = 0
 function collect()
 	collected = collected + 1
 	if math.fmod(collected, 25) == 0 then
-		print( collected.." items minÃ©(s)." )
+		print( collected.." items miné(s)." )
 	end
 end
 local activSlot = 1
@@ -148,10 +148,10 @@ function itemCount( slot )
 	for s = 1,16 do
 		if s ~= slot then
 			if turtle.compareTo(s) then
-				nbItem = turtle.getItemCount(s)
+				nbItem = nbItem + turtle.getItemCount(s)
 			end
 		else
-			nbItem = turtle.getItemCount(slot)
+			nbItem = nbItem + turtle.getItemCount(slot)
 		end
 	end
 	select(oldSlot)
@@ -294,7 +294,7 @@ function DigAround(materials, reverse)
 	turnBack()
 end
 
---[[ fonctions dedÃ©placement ]]--
+--[[ fonctions dedéplacement ]]--
 function refuel()
 	myDebug('refuel()')
 	local fuelLevel = turtle.getFuelLevel()
@@ -334,6 +334,7 @@ function refuel()
 	end
 end
 function tryUp(autoDig)
+	autoDig = autoDig or true
 	myDebug('tryUp()')
 	refuel()
 	local try = 20
@@ -353,6 +354,7 @@ function tryUp(autoDig)
 	if try>0 then return true else return false end
 end
 function tryDown(autoDig)
+	autoDig = autoDig or true
 	myDebug('tryDown()')
 	refuel()
 	local try = 20
@@ -372,6 +374,7 @@ function tryDown(autoDig)
 	if try>0 then return true else return false end
 end
 function tryForward(autoDig)
+	autoDig = autoDig or true
 	myDebug('tryForward()')
 	refuel()
 	local try = 20
