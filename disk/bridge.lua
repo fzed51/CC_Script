@@ -21,7 +21,6 @@ local pierre = {1,2,3,4,5,6,7,8,9,10,11,12,13,14}
 local function round(num)
   return math.floor(num + 0.5)
 end
-
 local function corrigeLongueurPosition( longueur )
 	myDebug( 'corrigeLongueurPosition('..longueur..')' )
 	local position = 0

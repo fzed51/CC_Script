@@ -26,11 +26,11 @@ local function makePlan( l )
 	print("Creation d'un plan pour un pont de "..l.."m.")
 	local plan = {}
 	-- calcul longueur d'une arche
-	local tailles,lArche = {18,17,16,15,14,13,12},0
-	local r = tailles[1] -- r = taille maxi. ici : 16
+	local tailles,lArche = {19,18,17,16,15,14,13,12,11,10},0
+	local r = tailles[1]
 	for _,v in ipairs(tailles) do
-		if r > (l % v) then 
-			r = (l % v)
+		if r < (l-(l%v)) then 
+			r = (l-(l%v))
 			lArche = v
 		end
 	end
@@ -43,6 +43,13 @@ local function makePlan( l )
 			plan[#plan+1] = 2 + ( rArche - round(( rArche^2 - pos^2 )^0.5 ))
 		end
 		plan[#plan+1] = 77
+	end
+	while #plan > l do
+		if #plan%2 == 0 then
+			table.remove(plan)
+		else
+			table.remove(plan, 1)
+		end
 	end
 	return plan
 end
@@ -71,25 +78,6 @@ local function bridge()
 end
 
 --main
-printPlan(makePlan(18))
-io.read()
-printPlan(makePlan(17))
-io.read()
-printPlan(makePlan(16))
-io.read()
-printPlan(makePlan(15))
-io.read()
-printPlan(makePlan(14))
-io.read()
-printPlan(makePlan(13))
-io.read()
-printPlan(makePlan(12))
-io.read()
-printPlan(makePlan(77))
-io.read()
-printPlan(makePlan(77))
-io.read()
-printPlan(makePlan(77))
-io.read()
-printPlan(makePlan(77))
-io.read()
+math.randomseed( os.time() )
+for _=1,10 do math.random() end
+printPlan(makePlan(math.random(128)))
