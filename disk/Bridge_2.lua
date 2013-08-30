@@ -12,11 +12,11 @@
 +----------------------------------------------------------------------------+
 ]]--
 
---dofile('advTurtle') -- http://pastebin.com/7mLzefhQ
+dofile('advTurtle') -- http://pastebin.com/7mLzefhQ
 
---inventaire
---item.add('coal',1,64)
---item.add('cobblestone',2,64)
+inventaire
+item.add('coal',1,64)
+item.add('cobblestone',2,64)
 
 --fonctions
 local function round(num)
@@ -53,7 +53,6 @@ local function makePlan( l )
 	end
 	return plan
 end
-
 local function construitSection( epaisseur )	
 	local alt  = 0
 	local dig  = 0
@@ -85,7 +84,30 @@ local function construitSection( epaisseur )
 		tryPlaceDown(item.cobblestone)
 	end
 end
-
+local function countBlock( plan, idx )
+	local nbBlock
+	if idx == nil or idx > #plan then idx = #plan end
+	for i = 1, idx do
+		nbBlock = nbBlock + plan[i]
+	end
+	return nbBlock
+end
+local function refeelInv( position )
+	local p = position
+	while p>0 do
+		tryForward()
+		p=p-1
+	end
+	print('Rechargez mon inventaire!')
+	print('Appuyez sur une touche pour continuer.')
+	os.pullEvent('key')
+	turnBack()
+	while p<position do
+		tryForward()
+		p=p+1
+	end
+	turnBack()
+end
 local function printPlan( p )
 	print('Plan pour un pont de '..#p..'m de long.')
 	for _, n in ipairs( p ) do
@@ -97,19 +119,27 @@ local function printPlan( p )
 		print(sP)
 	end
 end
-
 --main function
 local function bridge()
 	local longueurPont, plan = 0, {}
 	repeat
-		--tryForward()
+		tryForward()
 		longueurPont = longueurPont + 1
-		--tryDigUp()
-	until false--turtle.detectDown()
-	--turnBack()
+		tryDigUp()
+	until turtle.detectDown()
+	turnBack()
+	local plan = makePlan( longueurPont )
+	local nbBlockTotal = countBlock( plan )
+	print ('Début de la construction du pont')
+	print ('avancement : 0%')
+	for p = longueurPont, 1, -1 do
+		local nbBlock = countBlock( plan, p )
+		if itemCount( item.cobblestone ) < plan[p] then
+			refeelInv(p)
+		end
+		tryForward()
+		construitSection(plan[p])
+	end		
 end
-
 --main
-math.randomseed( os.time() )
-for _=1,10 do math.random() end
-printPlan(makePlan(math.random(128)))
+bridge()
