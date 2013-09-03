@@ -334,11 +334,11 @@ function refuel()
 	end
 end
 function tryUp(autoDig)
-	autoDig = autoDig or true
+	if autoDig == nil then autoDig = true end
 	myDebug('tryUp()')
 	refuel()
 	local try = 20
-	while try > 0 and not turtle.up() do
+	while (autoDig or try > 0) and not turtle.up() do
 		if autoDig and turtle.detectUp() then
 			if not tryDigUp() then
 				return false
@@ -354,11 +354,11 @@ function tryUp(autoDig)
 	if try>0 then return true else return false end
 end
 function tryDown(autoDig)
-	autoDig = autoDig or true
+	if autoDig == nil then autoDig = true end
 	myDebug('tryDown()')
 	refuel()
 	local try = 20
-	while try > 0 and not turtle.down() do
+	while (autoDig or try > 0) and not turtle.down() do
 		if autoDig and turtle.detectDown() then
 			if not tryDigDown() then
 				return false
@@ -374,11 +374,11 @@ function tryDown(autoDig)
 	if try>0 then return true else return false end
 end
 function tryForward(autoDig)
-	autoDig = autoDig or true
+	if autoDig == nil then autoDig = true end
 	myDebug('tryForward()')
 	refuel()
 	local try = 20
-	while try > 0 and not turtle.forward() do
+	while (autoDig or try > 0) and not turtle.forward() do
 		if autoDig and turtle.detect() then
 			if not tryDig() then
 				return false
