@@ -40,7 +40,7 @@ function debugVal( o , niveau)
 		oStr = '(n) ' .. tostring(o)
 	elseif type(o) == "boolean" then
 		oStr = '(b) '
-		if o then oStr = oStr .. '1' else oStr = oStr .. '0' end
+		if o then oStr = oStr .. 'O' else oStr = oStr .. 'N' end
 	elseif type(o) == "string" then
 		oStr = '(s) ' .. string.format("%q", o)
 	elseif type(o) == "table" then
@@ -49,11 +49,11 @@ function debugVal( o , niveau)
 		for k,v in pairs(o) do
 			if first then first = false else  oStr = oStr .. ",\n" .. indent(niveau+1) end
 			oStr = oStr .. ' '
-			oStr = oStr .. debugVal(k)
+			oStr = oStr .. debugVal(k,niveau+1)
 			oStr = oStr .. ' = '
-			oStr = oStr .. debugVal(v)
+			oStr = oStr .. debugVal(v,niveau+1)
 		end
-		oStr = oStr .. "}"
+		oStr = "\n" .. indent(niveau) .. oStr .. "}"
 	else
 		oStr = '('..type(o)..')'
 	end 
@@ -71,6 +71,20 @@ item = {
 			item[nom] = slot
 			item.safe[slot] = minQte
 		end
+	end
+	['setup'] = function()
+		print('Veuillez compléter l\'inventaire.')
+		for s = 1,16 do
+			if item[s] ~= nil then
+				print('slot n '..s..' : '..item.safe[s]..' x '..item[s])
+			end
+		end
+		print('Appuyer sur une touche pour continuer.')
+		-- TODO : pullEvent('key')
+		read()
+	end
+	['test'] = function()
+		-- TODO
 	end
 }
 function inventaireIsFull()
@@ -338,7 +352,8 @@ function tryUp(autoDig)
 	myDebug('tryUp()')
 	refuel()
 	local try = 20
-	while (autoDig or try > 0) and not turtle.up() do
+	while not turtle.up() do
+		if (not autoDig) and try < 0 then return false end
 		if autoDig and turtle.detectUp() then
 			if not tryDigUp() then
 				return false
@@ -351,14 +366,15 @@ function tryUp(autoDig)
 			try=try-1
 		end
 	end
-	if try>0 then return true else return false end
+	return true
 end
 function tryDown(autoDig)
 	if autoDig == nil then autoDig = true end
 	myDebug('tryDown()')
 	refuel()
 	local try = 20
-	while (autoDig or try > 0) and not turtle.down() do
+	while not turtle.down() do
+		if (not autoDig) and try < 0 then return false end
 		if autoDig and turtle.detectDown() then
 			if not tryDigDown() then
 				return false
@@ -371,14 +387,15 @@ function tryDown(autoDig)
 			try=try-1
 		end
 	end
-	if try>0 then return true else return false end
+	return true
 end
 function tryForward(autoDig)
 	if autoDig == nil then autoDig = true end
 	myDebug('tryForward()')
 	refuel()
 	local try = 20
-	while (autoDig or try > 0) and not turtle.forward() do
+	while not turtle.forward() do
+		if (not autoDig) and try < 0 then return false end
 		if autoDig and turtle.detect() then
 			if not tryDig() then
 				return false
@@ -391,7 +408,7 @@ function tryForward(autoDig)
 			try=try-1
 		end
 	end
-	if try>0 then return true else return false end
+	return true
 end
 function turnLeft()
 	myDebug('turnLeft()')
