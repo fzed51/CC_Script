@@ -71,7 +71,7 @@ item = {
 			item[nom] = slot
 			item.safe[slot] = minQte
 		end
-	end
+	end,
 	['setup'] = function()
 		print('Veuillez compléter l\'inventaire.')
 		for s = 1,16 do
@@ -82,7 +82,7 @@ item = {
 		print('Appuyer sur une touche pour continuer.')
 		-- TODO : pullEvent('key')
 		read()
-	end
+	end,
 	['test'] = function()
 		-- TODO
 	end
