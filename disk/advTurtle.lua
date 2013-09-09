@@ -87,36 +87,6 @@ item = {
 		-- TODO
 	end
 }
-function inventaireIsFull()
-	local slotVide = 16
-	for slot = 1,16 do
-		if turtle.getItemCount(slot) > 0 then
-			slotVide = slotVide - 1
-		end
-	end
-	return not (slotVide > 0)
-end
-function rangeInventaire()
-	local oldSlot, selectlot, lastSlot = turtle.activeSlot, 1, 16
-	while selectSlot < lastSlot do
-		if turtle.getItemCount(selectSlot) > 0 then
-			turtle.select(selectSlot)			
-			local espaceLibre = turtle.getItemSpace(selectSlot)
-			local compareSlot = 16
-			while espaceLibre > 0 and compareSlot > selectSlot do
-				if turtle.compareTo(compareSlot) then
-					turtle.select(compareSlot)
-					turtle.transferTo(selectSlot, math.min(espaceLibre, turtle.getItemCount(compareSlot)))
-					turtle.select(selectSlot)
-					espaceLibre = turtle.getItemSpace(selectSlot)
-				end
-				compareSlot = compareSlot - 1
-			end
-		end
-		selectSlot = selectSlot + 1
-	end
-	turtle.select(oldSlot)
-end
 local collected = 0
 function collect()
 	collected = collected + 1
@@ -149,6 +119,36 @@ function trySelect( slot )
 		print("plus de ".. (item[slot] or slot) )
 		return false
 	end
+end
+function inventaireIsFull()
+	local slotVide = 16
+	for slot = 1,16 do
+		if turtle.getItemCount(slot) > 0 then
+			slotVide = slotVide - 1
+		end
+	end
+	return not (slotVide > 0)
+end
+function rangeInventaire()
+	local oldSlot, selectlot, lastSlot = turtle.activeSlot, 1, 16
+	while selectSlot < lastSlot do
+		if turtle.getItemCount(selectSlot) > 0 then
+			turtle.select(selectSlot)			
+			local espaceLibre = turtle.getItemSpace(selectSlot)
+			local compareSlot = 16
+			while espaceLibre > 0 and compareSlot > selectSlot do
+				if turtle.compareTo(compareSlot) then
+					turtle.select(compareSlot)
+					turtle.transferTo(selectSlot, math.min(espaceLibre, turtle.getItemCount(compareSlot)))
+					turtle.select(selectSlot)
+					espaceLibre = turtle.getItemSpace(selectSlot)
+				end
+				compareSlot = compareSlot - 1
+			end
+		end
+		selectSlot = selectSlot + 1
+	end
+	turtle.select(oldSlot)
 end
 function drop( slot )
 	
