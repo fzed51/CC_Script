@@ -80,7 +80,7 @@ item = {
 			end
 		end
 		print('Appuyer sur une touche pour continuer.')
-		-- TODO : pullEvent('key')
+		os.pullEvent('key')
 		read()
 	end,
 	['test'] = function()
