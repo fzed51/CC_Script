@@ -309,6 +309,10 @@ function DigAround(materials, reverse)
 end
 
 --[[ fonctions dedéplacement ]]--
+local fuel = {}
+function setFuelItem(newFuel)
+	fuel[#fuel + 1] = newFuel
+end
 function refuel()
 	myDebug('refuel()')
 	local fuelLevel = turtle.getFuelLevel()
@@ -329,8 +333,10 @@ function refuel()
 				return false
 			end
 		end
-		if item.coal ~= nil then
-			return rf(item.coal)
+		if #fuel > 0 then
+			for s = 1, #fuel do
+				if rf(fuel[s]) then return true end
+			end
 		else
 			for s = 1,16 do
 				if rf(s) then return true end
