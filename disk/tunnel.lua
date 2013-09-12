@@ -1,216 +1,74 @@
+--[[
++----------------------------------------------------------------------------+
+| tunnel
+| version : 2.5
+| Auteur : fzed51
+| git : https://github.com/fzed51/CC_Script/blob/master/disk/tunnel.lua
+| pastebin : http://pastebin.com/Q6S02tau
++----------------------------------------------------------------------------+
+| tag : [lua] [MC] [MineCraft] [CC] [ComputerCraft] [Turtle]
+| Descript :
+| script pour creuser un tunnel de minage
++----------------------------------------------------------------------------+
+]]--
 
+dofile('advTurtle') -- http://pastebin.com/7mLzefhQ
+
+--[[ Paramètes du script ]]--
 local tArgs = { ... }
-if not (#tArgs == 1 ou #tArgs == 2) then
-	print( "Usage: tunnel <longueur>" )
-	print( "Usage: tunnel <longueur> <{largeur, hauteur}>" )
+if not (#tArgs == 1) then
+	print( "Usage:\ntunnel <longueur>" )
 	return
 end
-
--- Mine in a quarry pattern until we hit something we can't dig
 local length = tonumber( tArgs[1] )
 if length < 1 then
 	print( "Le tunnel doit avoir une longueur positive!" )
 	return
 end
-	
+
+--[[ Paramètes de l'inventaire ]]--
+item.add('coal',1,64)
+setFuelItem(item.coal)
+item.add('cobblestone',2,32)
+item.add('torch',3,64)
+
+local function goStart( l )
+	turnBack()
+	for _=1,l do tryForward() end
+	print ('')
+	print ('Videz mon inventaire !!!')
+	os.pullEvent('key')
+	turnBack()
+	for _=1,l do tryForward() end
+end
+
 local depth = 0
-local collected = 0
-
-local function collect()
-	collected = collected + 1
-	if math.fmod(collected, 25) == 0 then
-		print( collected.." items miné(s)." )
-	end
-end
-
-local function tryDig()
-	while turtle.detect() do
-		if turtle.dig() then
-			collect()
-			sleep(0.5)
-		else
-			return false
-		end
-	end
-	return true
-end
-
-local function tryDigUp()
-	while turtle.detectUp() do
-		if turtle.digUp() then
-			collect()
-			sleep(0.5)
-		else
-			return false
-		end
-	end
-	return true
-end
-
-local function tryDigDown()
-	while turtle.detectDown() do
-		if turtle.digDown() then
-			turtle.suckDown()
-			collect()
-			sleep(0.5)
-		else
-			return false
-		end
-	end
-	return true
-end
-
-local function refuel()
-	local fuelLevel = turtle.getFuelLevel()
-	if fuelLevel == "unlimited" or fuelLevel > 0 then
-		return
-	end
-	
-	local function tryRefuel()
-		for n=1,16 do
-			if turtle.getItemCount(n) > 0 then
-				turtle.select(n)
-				if turtle.refuel(1) then
-					turtle.select(1)
-					return true
-				end
-			end
-		end
-		turtle.select(1)
-		return false
-	end
-	
-	if not tryRefuel() then
-		print( "Ajout plus de fuel pour continuer." )
-		while not tryRefuel() do
-			sleep(1)
-		end
-		print( "Retour au tunnel." )
-	end
-end
-
-local function tryUp()
-	refuel()
-	while not turtle.up() do
-		if turtle.detectUp() then
-			if not tryDigUp() then
-				return false
-			end
-		elseif turtle.attackUp() then
-			collect()
-		else
-			sleep( 0.5 )
-		end
-	end
-	return true
-end
-
-local function tryDown()
-	refuel()
-	while not turtle.down() do
-		if turtle.detectDown() then
-			if not tryDigDown() then
-				return false
-			end
-		elseif turtle.attackDown() then
-			collect()
-		else
-			sleep( 0.5 )
-		end
-	end
-	return true
-end
-
-local function tryForward()
-	refuel()
-	while not turtle.forward() do
-		if turtle.detect() then
-			if not tryDig() then
-				return false
-			end
-		elseif turtle.attack() then
-			collect()
-		else
-			sleep( 0.5 )
-		end
-	end
-	return true
-end
-
-local function trySelect( slot )
-	if slot >= 1 and slot <= 16 then
-		if turtle.getItemCount(slot) > 0 then
-			turtle.select(slot)
-			return true
-		else
-			print("Le slot " .. slot .. " est vide")
-			return false
-		end
-	end
-end
-
-local function tryPlace( slot )
-	if trySelect(slot) then
-		return turtle.place()
-	else
-		return false
-	end
-end
-
-local function tryPlaceUp( slot )
-	if trySelect(slot) then
-		return turtle.placeUp()
-	else
-		return false
-	end
-end
-
-local function tryPlaceDown( slot )
-	if trySelect(slot) then
-		return turtle.placeDown()
-	else
-		return false
-	end
-end
-
-local function turnLeft()
-	turtle.turnLeft()
-end
-
-local function turnRight()
-	turtle.turnRight()
-end
-
-local function turnBack()
-	turtle.turnLeft()
-	turtle.turnLeft()
-end
-
-print( "Tunnelling..." )
+print( "Creuser un tunnel..." )
 
 for n=1,length do
-
 	if n<length then
 		tryDig()
-		if not tryForward() then
+		if tryForward() then
+			depth = depth + 1
+		else
 			print("ERREUR FATALE")
 			print( "Abandon du Tunnel." )
 			break
 		end	
-		tryPlaceDown(1)
+		tryPlaceDown(item.cobblestone)
 		tryUp()
-		tryPlaceUp(1)
+		tryPlaceUp(item.cobblestone)
 		turnLeft()
 		if tryForward() then
-			tryPlaceUp(1)
-			tryPlace(1)
-			if tryDown() then
+			tryPlaceUp(item.cobblestone)
+			tryPlace(item.cobblestone)
+			if not tryDown() then
 				print("ERREUR FATALE")
-				print("Abandon du Tunnel."")
+				print("Abandon du Tunnel.")
 				break
 			end
-			tryPlace()
-			tryPlaceDown()
+			tryPlace(item.cobblestone)
+			tryPlaceDown(item.cobblestone)
 			turnBack()
 			tryForward()
 			tryUp()
@@ -218,15 +76,20 @@ for n=1,length do
 			turnBack()
 		end
 		if tryForward() then
-			tryPlaceUp(1)
-			tryPlace(1)
-			if tryDown() then
+			tryPlaceUp(item.cobblestone)
+			tryPlace(item.cobblestone)
+			if (n % 7) == 4 then
+				turnRight()
+				tryPlace(item.torch)
+				turnLeft()
+			end
+			if not tryDown() then
 				print("ERREUR FATALE")
-				print("Abandon du Tunnel."")
+				print("Abandon du Tunnel.")
 				break
 			end
-			tryPlace()
-			tryPlaceDown()
+			tryPlace(item.cobblestone)
+			tryPlaceDown(item.cobblestone)
 			turnBack()
 			tryForward()
 			turnRight()
@@ -234,10 +97,15 @@ for n=1,length do
 			turnLeft()
 			tryDown()			
 		end
+		if inventaireIsFull() then
+			rangeInventaire()
+			if inventaireIsFull() then
+				goStart(n)
+			end
+		end
 	else
 		print( "Tunnel complete." )
 	end
-
 end
 
 print( "Retour au début..." )
@@ -252,4 +120,3 @@ end
 turnBack()
 
 print( "Tunnel fini." )
-print( "Un total de " ..collected.." items miné(s)." )
