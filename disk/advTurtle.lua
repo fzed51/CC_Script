@@ -65,7 +65,7 @@ item = {
 	['safe'] = {},
 	['add'] = function(nom, slot, minQte)
 		if item[slot] ~= nil or item[nom] ~= nil then
-			error("Impossible d'enregistrer cet item!")
+			error("Impossible d'enregistrer cet item (" .. tostring(nom)..")!")
 		else
 			item[slot] = nom
 			item[nom] = slot
@@ -103,7 +103,7 @@ function trySelect( slot )
 	myDebug('trySelect( '..slot..' )')
 	local slots = {}
 	local nbItem = 0
-	turtle.select(slot)
+	select(slot)
 	for s = 16, 1, -1 do
 		if (s ~= slot) then
 			if turtle.compareTo(s) then
@@ -121,6 +121,7 @@ function trySelect( slot )
 	end
 end
 function inventaireIsFull()
+	myDebug('inventaireIsFull()')
 	local slotVide = 16
 	for slot = 1,16 do
 		if turtle.getItemCount(slot) > 0 then
@@ -130,33 +131,41 @@ function inventaireIsFull()
 	return not (slotVide > 0)
 end
 function rangeInventaire()
-	local oldSlot, selectlot, lastSlot = turtle.activeSlot, 1, 16
+	myDebug('rangeInventaire()')
+	local oldSlot, selectSlot, lastSlot = activSlot, 1, 16
 	while selectSlot < lastSlot do
 		if turtle.getItemCount(selectSlot) > 0 then
-			turtle.select(selectSlot)			
+			select(selectSlot)			
 			local espaceLibre = turtle.getItemSpace(selectSlot)
 			local compareSlot = 16
 			while espaceLibre > 0 and compareSlot > selectSlot do
 				if turtle.compareTo(compareSlot) then
-					turtle.select(compareSlot)
+					select(compareSlot)
 					turtle.transferTo(selectSlot, math.min(espaceLibre, turtle.getItemCount(compareSlot)))
-					turtle.select(selectSlot)
+					select(selectSlot)
 					espaceLibre = turtle.getItemSpace(selectSlot)
 				end
 				compareSlot = compareSlot - 1
 			end
 		end
+		while turtle.getItemCount(lastSlot) == 0 do
+			lastSlot = lastSlot - 1
+		end
 		selectSlot = selectSlot + 1
 	end
-	turtle.select(oldSlot)
+	print('apres while')
+	print(tostring(oldSlot))
+	select(oldSlot)
+	print('fin rangeInventaire()')
 end
 function drop( slot )
-	
+	myDebug('drop()')
 end
 function tryDropAll()
-
+	myDebug('tryDropAll()')
 end
 function itemCount( slot )
+	myDebug('')
 	local oldSlot, nbItem = activSlot, 0
 	select(slot)
 	for s = 1,16 do
@@ -237,6 +246,7 @@ function tryDigDown()
 	return true
 end
 function DigAround(materials, reverse)
+	myDebug('DigAround('..tostring(materials)..', '..tostring(reverse)..')')
 	reverse = reverse or false
 	local function multiCompare(dir, materials, reverse)
 		local compareAction, detectAction = nil, nil
@@ -311,6 +321,7 @@ end
 --[[ fonctions dedéplacement ]]--
 local fuel = {}
 function setFuelItem(newFuel)
+	myDebug('setFuelItem('..newFuel..')')
 	fuel[#fuel + 1] = newFuel
 end
 function refuel()
