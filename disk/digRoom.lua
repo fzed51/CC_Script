@@ -1,3 +1,18 @@
+--[[
++----------------------------------------------------------------------------+
+| digRoom
+| version : 1.2
+| Auteur : fzed51
+| git : https://github.com/fzed51/CC_Script/blob/master/disk/tunnel.lua
+| pastebin : http://pastebin.com/Q6S02tau
++----------------------------------------------------------------------------+
+| tag : [lua] [MC] [MineCraft] [CC] [ComputerCraft] [Turtle]
+| Description :
+| script permetant de creuser une pièce dans un sous-sol
+| les differante pièce sons stockées dans un plan ( room, couloir, bigRoom )
++----------------------------------------------------------------------------+
+]]--
+
 dofile('advTurtle') -- http://pastebin.com/7mLzefhQ
 
 local arg = {...}
@@ -130,6 +145,18 @@ patern.couloir = {
 {l = 3, h = 3, p = 1},
 {l = 1, h = 2, p = 1},
 {l = 3, h = 3, p = 8}}
+
+-- control du paramètre et usage
+if patern[room] == nil then
+	local str, v = "Usage :\n digRoom [", ''
+	for k in pairs(patern) do
+		str = str .. v .. k
+		v = '|'
+	end
+	str = str .. ']'
+	print(str)
+	os.exit(1)
+end
 
 for _,v in pairs(patern[room]) do
 	for __ = 1, v.p do
