@@ -3,8 +3,8 @@
 | digRoom
 | version : 1.2
 | Auteur : fzed51
-| git : https://github.com/fzed51/CC_Script/blob/master/disk/tunnel.lua
-| pastebin : http://pastebin.com/Q6S02tau
+| git : https://github.com/fzed51/CC_Script/blob/master/disk/digRoom.lua
+| pastebin : http://pastebin.com/nDpbk312
 +----------------------------------------------------------------------------+
 | tag : [lua] [MC] [MineCraft] [CC] [ComputerCraft] [Turtle]
 | Description :
