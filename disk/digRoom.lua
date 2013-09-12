@@ -1,10 +1,10 @@
 dofile('advTurtle') -- http://pastebin.com/7mLzefhQ
 
-setDebug(false, 'trace')
+local arg = {...}
+local room = arg[1]
+
 item.add('coal', 1, 64)
 item.add('cobblestone', 2, 64)
-
-print(debugVal(item))
 
 function section(largeur, hauteur)
 	
@@ -115,18 +115,23 @@ function section(largeur, hauteur)
 	end
 end
 
-local room = {
+local patern = {}
+patern.room = {
 {l = 3, h = 3, p = 1},
 {l = 1, h = 2, p = 1},
 {l = 3, h = 3, p = 1},
 {l = 7, h = 4, p = 7}}
-
-local couloir = {
+patern.bigroom = {
+{l = 3, h = 3,  p = 1},
+{l = 1, h = 2,  p = 1},
+{l = 3, h = 3,  p = 1},
+{l = 7, h = 11, p = 7}}
+patern.couloir = {
 {l = 3, h = 3, p = 1},
 {l = 1, h = 2, p = 1},
 {l = 3, h = 3, p = 8}}
 
-for _,v in pairs(couloir) do
+for _,v in pairs(patern[room]) do
 	for __ = 1, v.p do
 		section(v.l, v.h)
 	end
