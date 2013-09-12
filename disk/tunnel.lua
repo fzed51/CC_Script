@@ -7,7 +7,7 @@
 | pastebin : http://pastebin.com/Q6S02tau
 +----------------------------------------------------------------------------+
 | tag : [lua] [MC] [MineCraft] [CC] [ComputerCraft] [Turtle]
-| Descript :
+| Description :
 | script pour creuser un tunnel de minage
 +----------------------------------------------------------------------------+
 ]]--

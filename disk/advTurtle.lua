@@ -7,7 +7,7 @@
 | pastebin : http://pastebin.com/7mLzefhQ
 +----------------------------------------------------------------------------+
 | tag : [lua] [MC] [MineCraft] [CC] [ComputerCraft] [Turtle]
-| Descript :
+| Description :
 | bibliotèque de fonction pour la turtle.
 +----------------------------------------------------------------------------+
 ]]--
