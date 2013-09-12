@@ -1,7 +1,7 @@
 --[[
 +----------------------------------------------------------------------------+
 | tunnel
-| version : 2.5
+| version : 2.0
 | Auteur : fzed51
 | git : https://github.com/fzed51/CC_Script/blob/master/disk/tunnel.lua
 | pastebin : http://pastebin.com/Q6S02tau
