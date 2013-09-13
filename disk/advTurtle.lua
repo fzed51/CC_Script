@@ -1,7 +1,7 @@
 --[[
 +----------------------------------------------------------------------------+
 | advTurtle
-| version : 2.5
+| version : 2.6
 | Auteur : fzed51
 | git : https://github.com/fzed51/CC_Script/blob/master/disk/advTurtle.lua
 | pastebin : http://pastebin.com/7mLzefhQ
@@ -61,32 +61,7 @@ function debugVal( o , niveau)
 end
 
 --[[ Paramètes & fonction de l'inventaire ]]--
-item = {
-	['safe'] = {},
-	['add'] = function(nom, slot, minQte)
-		if item[slot] ~= nil or item[nom] ~= nil then
-			error("Impossible d'enregistrer cet item (" .. tostring(nom)..")!")
-		else
-			item[slot] = nom
-			item[nom] = slot
-			item.safe[slot] = minQte
-		end
-	end,
-	['setup'] = function()
-		print('Veuillez compléter l\'inventaire.')
-		for s = 1,16 do
-			if item[s] ~= nil then
-				print('slot n '..s..' : '..item.safe[s]..' x '..item[s])
-			end
-		end
-		print('Appuyer sur une touche pour continuer.')
-		os.pullEvent('key')
-		read()
-	end,
-	['test'] = function()
-		-- TODO
-	end
-}
+
 local collected = 0
 function collect()
 	collected = collected + 1
@@ -153,10 +128,7 @@ function rangeInventaire()
 		end
 		selectSlot = selectSlot + 1
 	end
-	print('apres while')
-	print(tostring(oldSlot))
 	select(oldSlot)
-	print('fin rangeInventaire()')
 end
 function drop( slot )
 	myDebug('drop()')
@@ -180,7 +152,37 @@ function itemCount( slot )
 	select(oldSlot)
 	return nbItem
 end
-
+item = {
+	['safe'] = {},
+	['add'] = function(nom, slot, minQte)
+		if item[slot] ~= nil or item[nom] ~= nil then
+			error("Impossible d'enregistrer cet item (" .. tostring(nom)..")!")
+		else
+			item[slot] = nom
+			item[nom] = slot
+			item.safe[slot] = minQte
+		end
+	end,
+	['setup'] = function()
+		print('Veuillez compléter l\'inventaire.')
+		for s = 1,16 do
+			if item[s] ~= nil then
+				print('slot n '..s..' : '..item.safe[s]..' x '..item[s])
+			end
+		end
+		print('Appuyer sur une touche pour continuer.')
+		os.pullEvent('key')
+	end,
+	['test'] = function()
+		local slots, mini, maxi, nbItem = item.safe, true, true, 0
+		for slot, qte in ipairs(slots) do
+			nbItem = itemCount(slot)
+			mini = mini and ( nbItem > 1 )
+			maxi = maxi and ( nbItem > qte )
+		end
+		return mini, maxi
+	end
+}
 --[[ fonction d'utilisation de l'inventaire ]]--
 function tryPlace( slot )
 	myDebug('tryPlace( '..slot..' )')
