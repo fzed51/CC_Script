@@ -1,7 +1,7 @@
 --[[
 +----------------------------------------------------------------------------+
 | param
-| version : 0.1
+| version : 0.2
 | Auteur : fzed51
 | git : https://github.com/fzed51/CC_Script/blob/master/disk/param.lua
 | pastebin : http://pastebin.com/
@@ -34,3 +34,44 @@
 | > Message en plus pour aide.
 +----------------------------------------------------------------------------+
 ]]--
+
+
+
+local parametres, paramsSupl, options, helpMsg, limit = {}, {}, {}, '', true
+
+function addOpt(nom, valid, default)
+	-- TODO :
+end
+function add(nom, valid, default)
+	-- TODO :
+end
+function addHelp( msg )
+	helpMsg = msg
+end
+function isLimited( _limit )
+	limit = _limit
+end
+function usage()
+	local out = ''
+	for n = 1, #parametres do
+		out = out .. '<' .. parametres[n].name .. '> ' 
+	end
+	for n = 1, #paramsSupl do
+		out = out .. '[<' .. paramsSupl[n].name .. '>] ' 
+	end
+	for n = 1, #options do
+		out = out .. '[-' .. options[n].name 
+		if options[n].param then
+			out = out .. ' <[' .. options[n].strValid .. ']>'
+		end
+		out = out .. '] ' 
+	end
+	if #helpMsg > 0 then
+		out = out .. "\n" .. helpMsg
+	end
+	print(out)
+	error()
+end
+function get(args)
+	-- TODO :
+end
