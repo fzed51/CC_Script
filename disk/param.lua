@@ -1,7 +1,7 @@
 --[[
 +----------------------------------------------------------------------------+
 | param
-| version : 0.2
+| version : 0.3
 | Auteur : fzed51
 | git : https://github.com/fzed51/CC_Script/blob/master/disk/param.lua
 | pastebin : http://pastebin.com/
@@ -38,7 +38,27 @@
 
 
 local parametres, paramsSupl, options, helpMsg, limit = {}, {}, {}, '', true
-
+--[[
+structure :
+parametre { 
+	name,		-- [string]
+	strValid,	-- [string] 'int' / 'string' / 'mix'
+	valid		-- [fonction]
+}
+paramsSupl {
+	name,		-- [string]
+	strValid,	-- [string] 'int' / 'string' / 'mix'
+	valid,		-- [fonction]
+	defaut		-- [mix] 
+}
+options {
+	name,		-- [string]
+	strValid,	-- [string] 'int' / 'string' / 'mix'
+	valid,		-- [fonction]
+	param,		-- [boolean] option avec parametre
+	defaut		-- [mix] 
+}
+]]--
 function addOpt(nom, valid, default)
 	-- TODO :
 end
