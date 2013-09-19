@@ -8,7 +8,7 @@
 +----------------------------------------------------------------------------+
 | tag : [lua] [MC] [MineCraft] [CC] [ComputerCraft] [Turtle]
 | Descript :
-| construit un pont avec arche
+| construit un pont avec des arches.
 +----------------------------------------------------------------------------+
 ]]--
 
