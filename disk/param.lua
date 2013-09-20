@@ -15,12 +15,12 @@
 | donne dans le code :
 | os.loadAPI('param')
 | param.addOpt('o1')
-| param.addOpt('o2', 'int')
+| param.addOpt('o2', 'number')
 | param.addOpt('o3')
 | param.addOpt('o4', 'string', 'def')
 | param.add('param1', 'string')
 | param.add('param2', 'string', 'val def')
-| param.add('param3', 'int')
+| param.add('param3', 'number')
 | param.isLimited(true)
 | param.addHelp('Message en plus pour aide.')
 | args, opt = param.get({...})
@@ -30,7 +30,7 @@
 |		   ['o3'] = false,
 |		   ['o4'] = 'def'}
 | param.usage()
-| > <param1> <param3> [<param2>] [-o1] [-o2 <[int]>] [-o3] [-o4 <[string]>]
+| > <param1> <param3> [<param2>] [-o1] [-o2 <[number]>] [-o3] [-o4 <[string]>]
 | > Message en plus pour aide.
 +----------------------------------------------------------------------------+
 ]]--
@@ -43,13 +43,13 @@ parametre {
 	strValid,	-- [string] 'int' / 'string' / 'mix'
 	valid		-- [fonction]
 }
-paramsSupl {
+paramSupl {
 	name,		-- [string]
 	strValid,	-- [string] 'int' / 'string' / 'mix'
 	valid,		-- [fonction]
 	defaut		-- [mix] 
 }
-options {
+option {
 	name,		-- [string]
 	strValid,	-- [string] 'int' / 'string' / 'mix'
 	valid,		-- [fonction]
@@ -58,7 +58,7 @@ options {
 }
 ]]--
 
-local function isInt( val )
+local function isNumber( val )
 	if type( val ) == 'number' or tonumber( val ) ~= nil then
 		return true
 	else
@@ -90,9 +90,9 @@ function addOpt(nom, valid, default)
 		_defaut = false
 	else
 		_param = true
-		if valid == 'int' then
+		if valid == 'number' then
 			_strValid = valid
-			_valid = isInt
+			_valid = isNumber
 			_defaut = default or 0
 		elseif valid == 'string' then
 			_strValid = valid
@@ -103,25 +103,61 @@ function addOpt(nom, valid, default)
 			_valid = valid
 			_defaut = default
 		else
-			print('Option : '.. _name, 'Le 2eme argument de la fonction addOpt doit être \'int\' / \'string\' / une fonction de test avec 1 argument et renvoyer true / false.')
+			print('Option : '.. _name, 'Le 2eme argument de la fonction addOpt doit être \'number\' / \'string\' / une fonction de test avec 1\'argument et renvoyer true / false.')
 			error()
 		end
 	end
 	local test, erreur = _valid( _defaut )
-	if not test then
+	if not( test or ( _defaut == nil )) then
 		print('Option : '.. _name, 'La valeur par defaut n\'est pas valide!', erreur)
 		error()
 	end
 	options[#options + 1] = {
 		name = _name,
 		strValid = _strValid,
-		valid = valid,
+		valid = _valid,
 		param = _param,
 		defaut = defaut
 	}
 end
 function add(nom, valid, default)
-	-- TODO :
+	local _name, _strValid, _valid, _defaut
+	_name = nom
+	if valid == 'number' then
+		_strValid = valid
+		_valid = isNumber
+		_defaut = default or 0
+	elseif valid == 'string' then
+		_strValid = valid
+		_valid = isString
+		_defaut = default or ''
+	elseif type(valid) == 'function' then
+		_strValid = 'mix'
+		_valid = valid
+		_defaut = default
+	else
+		print('Option : '.. _name, 'Le 2eme argument de la fonction add doit être \'number\' / \'string\' / une fonction de test avec 1\'argument et renvoyer true / false.')
+		error()
+	end
+	local test, erreur = _valid( _defaut )
+	if not( test or ( _defaut == nil )) then
+		print('Option : '.. _name, 'La valeur par defaut n\'est pas valide!', erreur)
+		error()
+	end
+	if _defaut ~= nil then
+		paramsSupl[#parametres + 1] = {
+			name = _name,
+			strValid = _strValid,
+			valid = _valid,
+			defaut = defaut
+		}
+	else
+		parametres[#parametres + 1] = {
+			name = _name,
+			strValid = _strValid,
+			valid = _valid
+		}
+	end
 end
 function addHelp( msg )
 	helpMsg = msg
