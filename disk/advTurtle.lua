@@ -61,7 +61,53 @@ function debugVal( o , niveau)
 end
 
 --[[ Paramètes & fonction de l'inventaire ]]--
-
+function itemCount( slot )
+	myDebug('')
+	local oldSlot, nbItem = activSlot, 0
+	select(slot)
+	for s = 1,16 do
+		if s ~= slot then
+			if turtle.compareTo(s) then
+				nbItem = nbItem + turtle.getItemCount(s)
+			end
+		else
+			nbItem = nbItem + turtle.getItemCount(slot)
+		end
+	end
+	select(oldSlot)
+	return nbItem
+end
+item = {
+	['safe'] = {},
+	['add'] = function(nom, slot, minQte)
+		if item[slot] ~= nil or item[nom] ~= nil then
+			error("Impossible d'enregistrer cet item (" .. tostring(nom)..")!")
+		else
+			item[slot] = nom
+			item[nom] = slot
+			item.safe[slot] = minQte
+		end
+	end,
+	['setup'] = function()
+		print('Veuillez compléter l\'inventaire.')
+		for s = 1,16 do
+			if item[s] ~= nil then
+				print('slot n '..s..' : '..item.safe[s]..' x '..item[s])
+			end
+		end
+		print('Appuyer sur une touche pour continuer.')
+		os.pullEvent('key')
+	end,
+	['test'] = function()
+		local slots, mini, maxi, nbItem = item.safe, true, true, 0
+		for slot, qte in ipairs(slots) do
+			nbItem = itemCount(slot)
+			mini = mini and ( nbItem > 1 )
+			maxi = maxi and ( nbItem > qte )
+		end
+		return mini, maxi
+	end
+}
 local collected = 0
 function collect()
 	collected = collected + 1
@@ -130,59 +176,7 @@ function rangeInventaire()
 	end
 	select(oldSlot)
 end
-function drop( slot )
-	myDebug('drop()')
-end
-function tryDropAll()
-	myDebug('tryDropAll()')
-end
-function itemCount( slot )
-	myDebug('')
-	local oldSlot, nbItem = activSlot, 0
-	select(slot)
-	for s = 1,16 do
-		if s ~= slot then
-			if turtle.compareTo(s) then
-				nbItem = nbItem + turtle.getItemCount(s)
-			end
-		else
-			nbItem = nbItem + turtle.getItemCount(slot)
-		end
-	end
-	select(oldSlot)
-	return nbItem
-end
-item = {
-	['safe'] = {},
-	['add'] = function(nom, slot, minQte)
-		if item[slot] ~= nil or item[nom] ~= nil then
-			error("Impossible d'enregistrer cet item (" .. tostring(nom)..")!")
-		else
-			item[slot] = nom
-			item[nom] = slot
-			item.safe[slot] = minQte
-		end
-	end,
-	['setup'] = function()
-		print('Veuillez compléter l\'inventaire.')
-		for s = 1,16 do
-			if item[s] ~= nil then
-				print('slot n '..s..' : '..item.safe[s]..' x '..item[s])
-			end
-		end
-		print('Appuyer sur une touche pour continuer.')
-		os.pullEvent('key')
-	end,
-	['test'] = function()
-		local slots, mini, maxi, nbItem = item.safe, true, true, 0
-		for slot, qte in ipairs(slots) do
-			nbItem = itemCount(slot)
-			mini = mini and ( nbItem > 1 )
-			maxi = maxi and ( nbItem > qte )
-		end
-		return mini, maxi
-	end
-}
+
 --[[ fonction d'utilisation de l'inventaire ]]--
 function tryPlace( slot )
 	myDebug('tryPlace( '..slot..' )')
@@ -207,6 +201,12 @@ function tryPlaceDown( slot )
 	else
 		return false
 	end
+end
+function drop( slot )
+	myDebug('drop()')
+end
+function tryDropAll()
+	myDebug('tryDropAll()')
 end
 
 --[[ fonctions de minage ]]--
