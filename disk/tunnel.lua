@@ -1,7 +1,7 @@
 --[[
 +----------------------------------------------------------------------------+
 | tunnel
-| version : 2.0
+| version : 2.2
 | Auteur : fzed51
 | git : https://github.com/fzed51/CC_Script/blob/master/disk/tunnel.lua
 | pastebin : http://pastebin.com/Q6S02tau
@@ -34,18 +34,41 @@ item.add('torch',3,64)
 
 local function goStart( l )
 	turnBack()
-	for _=1,l do tryForward() end
+	for _=0,l do tryForward() end
 	print ('')
 	print ('Videz mon inventaire !!!')
 	os.pullEvent('key')
 	turnBack()
-	for _=1,l do tryForward() end
+	for _=0,l do tryForward() end
+end
+
+local function close()
+	turnLeft()
+	tryForward()
+	turnRight()
+	tryPlace(item.cobblestone)
+	tryUp()
+	tryPlace(item.cobblestone)
+	turnRight()
+	tryForward()
+	turnLeft()
+	tryPlace(item.cobblestone)
+	turnRight()
+	tryForward()
+	turnLeft()
+	tryPlace(item.cobblestone)
+	tryDown()
+	tryPlace(item.cobblestone)
+	turnLeft()
+	tryForward()	
+	turnRight()
+	tryPlace(item.cobblestone)
 end
 
 local depth = 0
 print( "Creuser un tunnel..." )
 
-for n=1,length do
+for n=0,length do
 	if n<length then
 		tryDig()
 		if tryForward() then
@@ -104,10 +127,10 @@ for n=1,length do
 			end
 		end
 	else
+		close()
 		print( "Tunnel complete." )
 	end
 end
-
 print( "Retour au début..." )
 
 -- Return to where we started
