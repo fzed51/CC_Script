@@ -1,15 +1,15 @@
 --[[
 +----------------------------------------------------------------------------+
 | param
-| version : 0.3
+| version : 0.9
 | Auteur : fzed51
 | git : https://github.com/fzed51/CC_Script/blob/master/disk/param.lua
 | pastebin : http://pastebin.com/
 +----------------------------------------------------------------------------+
 | tag : [lua] [MC] [MineCraft] [CC] [ComputerCraft]
 | Descript :
-| API permetant de rÃ©cupÃ©rer les paramÃ¨tre donnÃ© dans la ligne de commande
-| d'exÃ©cution d'un script.
+| API permetant de récupérer les paramètre donné dans la ligne de commande
+| d'exécution d'un script.
 | exemple :
 | > script p1 -o1 -o2 45 p2
 | donne dans le code :
@@ -38,7 +38,7 @@
 local parametres, paramsSupl, options, helpMsg, limit = {}, {}, {}, '', true
 --[[
 structure :
-parametre { 
+parametre {
 	name,		-- [string]
 	strValid,	-- [string] 'int' / 'string' / 'mix'
 	valid		-- [fonction]
@@ -47,14 +47,14 @@ paramSupl {
 	name,		-- [string]
 	strValid,	-- [string] 'int' / 'string' / 'mix'
 	valid,		-- [fonction]
-	defaut		-- [mix] 
+	defaut		-- [mix]
 }
 option {
 	name,		-- [string]
 	strValid,	-- [string] 'int' / 'string' / 'mix'
 	valid,		-- [fonction]
 	param,		-- [boolean] option avec parametre
-	defaut		-- [mix] 
+	defaut		-- [mix]
 }
 ]]--
 
@@ -78,6 +78,14 @@ local function isBool( val )
 	else
 		return false, 'L\'argument n\'est pas une valeur logique.'
 	end
+end
+local function isOption( nom )
+	for n = 1, #options do
+		if options[n].name == nom then
+			return true, n
+		end
+	end
+	return false
 end
 
 function addOpt(nom, valid, default)
@@ -103,7 +111,7 @@ function addOpt(nom, valid, default)
 			_valid = valid
 			_defaut = default
 		else
-			print('Option : '.. _name, 'Le 2eme argument de la fonction addOpt doit Ãªtre \'number\' / \'string\' / une fonction de test avec 1\'argument et renvoyer true / false.')
+			print('Option : '.. _name, 'Le 2eme argument de la fonction addOpt doit être \'number\' / \'string\' / une fonction de test avec 1\'argument et renvoyer true / false.')
 			error()
 		end
 	end
@@ -136,15 +144,15 @@ function add(nom, valid, default)
 		_valid = valid
 		_defaut = default
 	else
-		print('Option : '.. _name, 'Le 2eme argument de la fonction add doit Ãªtre \'number\' / \'string\' / une fonction de test avec 1\'argument et renvoyer true / false.')
+		print('Option : '.. _name, "Le 2eme argument de la fonction add doit être 'number' / 'string' / une fonction de test avec 1'argument et renvoyer true / false.")
 		error()
 	end
 	local test, erreur = _valid( _defaut )
 	if not( test or ( _defaut == nil )) then
-		print('Option : '.. _name, 'La valeur par defaut n\'est pas valide!', erreur)
+		print('Option : '.. _name, "La valeur par defaut n'est pas valide!", erreur)
 		error()
 	end
-	if _defaut ~= nil then
+	if defaut ~= nil then
 		paramsSupl[#parametres + 1] = {
 			name = _name,
 			strValid = _strValid,
@@ -165,20 +173,21 @@ end
 function isLimited( _limit )
 	limit = _limit
 end
-function usage()
-	local out = ''
+function usage(script)
+	script = script or 'script'
+	local out = script .. ' '
 	for n = 1, #parametres do
-		out = out .. '<' .. parametres[n].name .. '> ' 
+		out = out .. '<' .. parametres[n].name .. '> '
 	end
 	for n = 1, #paramsSupl do
-		out = out .. '[<' .. paramsSupl[n].name .. '>] ' 
+		out = out .. '[<' .. paramsSupl[n].name .. '>] '
 	end
 	for n = 1, #options do
-		out = out .. '[-' .. options[n].name 
+		out = out .. '[-' .. options[n].name
 		if options[n].param then
 			out = out .. ' <[' .. options[n].strValid .. ']>'
 		end
-		out = out .. '] ' 
+		out = out .. '] '
 	end
 	if #helpMsg > 0 then
 		out = out .. "\n" .. helpMsg
@@ -187,20 +196,124 @@ function usage()
 	error()
 end
 function get(args)
-	-- TODO :
+	local param, ops = {}, {}
+	local pos, nbArgs = 1, #args
+	-- lit une valeur
+	local function readVal()
+		local arg = args[pos]
+		if arg:sub(1,1) == '"' then
+			return readString()
+		else
+			return arg
+		end
+	end
+	-- lit un string : lit tous les argument jusqu'a rencontrer un arguments 
+	-- finissant par "
+	local function readString()
+		local arg = args[pos]
+		if arg:sub(-1,-1) == '"' and arg:sub(-2,-1) ~= '\\"' then
+			return arg
+		else
+			pos = pos + 1
+			return (arg .. ' ' .. readString())
+		end
+	end
+	-- boucle principale qui lit les arguments
+	while pos <= nbArgs do
+		local arg = args[pos]
+		if (arg:sub(1,1) == '-') and (tonumber(arg) ~= nil) then
+			local opsName = arg:sub(2)
+			local trouve, idx = isOptions(opsName)
+			if trouve then
+				pos = pos + 1
+				if options[idx].param then
+					local val = readVal()
+					if options[idx].valid(val) then
+						ops[opsName] = val
+					else
+						print("Le type de l'option n'est pas : " .. options[idx].strValid)
+						usage()
+					end
+				else
+					ops[opsName] = true
+				end
+			elseif arg == '-?' or '-help' then
+				usage()
+			else
+				print ("L'option "..opsName.." n'existe pas!")
+				usage()
+			end
+		else
+			local v = readVal()
+			if (#param + 1) > #parametres then
+				local indParSup = (#param + 1 - #parametres)
+				if paramsSupl[indParSup].valid(v) then
+					param[#param + 1] = v
+				else
+					print("Le type du paramètre n'est pas : " .. paramsSupl[param].strValid)
+					usage()
+				end
+			else
+				if parametres[param].valid(v) then
+					param[#param + 1] = v
+				else
+					print("Le type du paramètre n'est pas : " .. parametres[param].strValid)
+					usage()
+				end
+			end
+			
+		end
+		pos = pos + 1
+	end
+	-- verification des parametres
+	if (#param < (#parametres)) then
+		print('Il manque des paramètres!')
+		usage()
+	elseif limit and (#param>(#parametres+#paramsSupl)) then
+		print('Le nombre de paramètres est trop important!')
+		usage()
+	end
+	-- Ajout des paramètres suplémentaires
+	for p = 1, #paramsSupl do
+		if param[(#parametres + p)] == nil then
+			param[(#parametres + p)] = paramsSupl[p].defaut
+		end
+	end
+	-- Ajout des options
+	for o = 1, #options do
+		if ops[options[o].name] == nil then
+			if options[o].param then
+				ops[options[o].name] = options[o].defaut
+			else
+				ops[options[o].name] = false
+			end
+		end
+	end
+	return param, ops
 end
 
---addOpt('option1')
---addOpt('option2', 'int')
---addOpt('option3', 'int',5)
---addOpt('option4', 'string')
---addOpt('option5', 'string','abc')
---addOpt('option6', function(a)
---		a = tonumber(a)
---		if a >= 0 and a < 10 then
---			return true
---		else
---			return false, 'erreur'
---		end
---	end, 1)
---usage()
+if true then -- Partie test de l'API
+	addOpt('o1')
+	addOpt('o2', 'number')
+	addOpt('o3', 'number',5)
+	addOpt('o4', 'string')
+	addOpt('o5', 'string','abc')
+	addOpt('o6', function(a)
+			a = tonumber(a)
+			if a >= 0 and a < 10 then
+				return true
+			else
+				return false, 'erreur'
+			end
+		end, 1)
+	add('longueur','string')
+	add('largeur','number',5)
+	usage('param')
+	p,o = get('90','-o1','-o2','4')
+	for k,v in ipairs(p) do
+		print(k,':',v)
+	end
+	for k,v in ipairs(o) do
+		print(k,':',v)
+	end
+end
