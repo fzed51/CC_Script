@@ -1,7 +1,7 @@
 --[[
 +----------------------------------------------------------------------------+
 | tunnel
-| version : 2.2
+| version : 2.3
 | Auteur : fzed51
 | git : https://github.com/fzed51/CC_Script/blob/master/disk/tunnel.lua
 | pastebin : http://pastebin.com/Q6S02tau
@@ -31,6 +31,8 @@ item.add('coal',1,64)
 setFuelItem(item.coal)
 item.add('cobblestone',2,32)
 item.add('torch',3,64)
+
+item.setup()
 
 local function goStart( l )
 	turnBack()
