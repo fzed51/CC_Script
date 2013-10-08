@@ -63,6 +63,28 @@ local function dba(a)
 		print(k,' : ', v)
 	end
 end
+local function traceDebug()
+	local level = 2
+	while true do
+		local info = debug.getinfo(level, "Sl")
+		if not info then break end
+		if info.what == "C" then   -- is a C function?
+			print(level, "C function")
+		else   -- a Lua function
+			print('============================')
+			print(string.format("[%s]:%d", info.short_src, info.currentline))
+			print('----------------------------')
+			local v = 1
+			while true do
+				local name, value = debug.getlocal(level, v)
+				if not name then break end
+				print(name, value)
+				v = v + 1
+			end
+		end
+		level = level + 1
+	end
+end
 
 local function isNumber( val )
 	if type( val ) == 'number' or tonumber( val ) ~= nil then
@@ -131,24 +153,24 @@ function addOpt(nom, valid, default)
 		strValid = _strValid,
 		valid = _valid,
 		param = _param,
-		defaut = defaut
+		defaut = _defaut
 	}
 end
-function add(nom, valid, default)
+function add(nom, valid, defaut)
 	local _name, _strValid, _valid, _defaut
 	_name = nom
 	if valid == 'number' then
 		_strValid = valid
 		_valid = isNumber
-		_defaut = default or 0
+		_defaut = defaut or 0
 	elseif valid == 'string' then
 		_strValid = valid
 		_valid = isString
-		_defaut = default or ''
+		_defaut = defaut or ''
 	elseif type(valid) == 'function' then
 		_strValid = 'mix'
 		_valid = valid
-		_defaut = default
+		_defaut = defaut
 	else
 		print('Option : '.. _name, "Le 2eme argument de la fonction add doit être 'number' / 'string' / une fonction de test avec 1'argument et renvoyer true / false.")
 		error()
@@ -159,7 +181,7 @@ function add(nom, valid, default)
 		error()
 	end
 	if defaut ~= nil then
-		paramsSupl[#parametres + 1] = {
+		paramsSupl[#paramsSupl + 1] = {
 			name = _name,
 			strValid = _strValid,
 			valid = _valid,
@@ -199,18 +221,18 @@ function usage(script)
 		out = out .. "\n" .. helpMsg
 	end
 	print(out)
+	-- traceDebug()
 	error()
 end
 function get(...)
 	local args = {...}
-	dba(args)
+	-- dba(args)
 	local param, ops = {}, {}
 	local pos, nbArgs = 1, #args
 	-- boucle principale qui lit les arguments
 	while pos <= nbArgs do
 		local arg = args[pos]
-		print('>', arg)
-		if (arg:sub(1,1) == '-') and (tonumber(arg) ~= nil) then
+		if (arg:sub(1,1) == '-') and (tonumber(arg) == nil) then
 			local opsName = arg:sub(2)
 			local trouve, idx = isOption(opsName)
 			if trouve then
@@ -279,8 +301,10 @@ function get(...)
 	-- Ajout des options
 	for o = 1, #options do
 		if ops[options[o].name] == nil then
+			print(o, options[o].param)
 			if options[o].param then
 				ops[options[o].name] = options[o].defaut
+				print(ops[options[o].name])
 			else
 				ops[options[o].name] = false
 			end
@@ -289,7 +313,7 @@ function get(...)
 	return param, ops
 end
 
-if true then -- Partie test de l'API
+if false then -- Partie test de l'API
 	addOpt('o1')
 	addOpt('o2', 'number')
 	addOpt('o3', 'number',5)
@@ -306,12 +330,12 @@ if true then -- Partie test de l'API
 	add('longueur','string')
 	add('largeur','number',5)
 	p,o = get('90','-o1','-o2','4')
+	print('parametre : ')
 	for k,v in pairs(p) do
-		print('parametre : ')
 		print(k,':',v)
 	end
+	print('option : ')
 	for k,v in pairs(o) do
-		print('option : ')
 		print(k,':',v)
 	end
 	usage('param')
