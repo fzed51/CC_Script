@@ -66,13 +66,15 @@ end
 local function traceDebug()
 	local level = 2
 	while true do
-		local info = debug.getinfo(level, "Sl")
+		local info = debug.getinfo(level, "nSl")
 		if not info then break end
+		-- dba(info)
 		if info.what == "C" then   -- is a C function?
 			print(level, "C function")
 		else   -- a Lua function
+			if info.what == 'main' then info.name = 'main' end
 			print('============================')
-			print(string.format("[%s]:%d", info.short_src, info.currentline))
+			print(string.format("[%s]:%d", info.name, info.currentline))
 			print('----------------------------')
 			local v = 1
 			while true do
@@ -301,10 +303,8 @@ function get(...)
 	-- Ajout des options
 	for o = 1, #options do
 		if ops[options[o].name] == nil then
-			print(o, options[o].param)
 			if options[o].param then
 				ops[options[o].name] = options[o].defaut
-				print(ops[options[o].name])
 			else
 				ops[options[o].name] = false
 			end
