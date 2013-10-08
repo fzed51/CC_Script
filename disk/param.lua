@@ -58,6 +58,12 @@ option {
 }
 ]]--
 
+local function dba(a)
+	for k,v in pairs(a) do
+		print(k,' : ', v)
+	end
+end
+
 local function isNumber( val )
 	if type( val ) == 'number' or tonumber( val ) ~= nil then
 		return true
@@ -195,39 +201,22 @@ function usage(script)
 	print(out)
 	error()
 end
-function get(args)
+function get(...)
+	local args = {...}
+	dba(args)
 	local param, ops = {}, {}
 	local pos, nbArgs = 1, #args
-	-- lit une valeur
-	local function readVal()
-		local arg = args[pos]
-		if arg:sub(1,1) == '"' then
-			return readString()
-		else
-			return arg
-		end
-	end
-	-- lit un string : lit tous les argument jusqu'a rencontrer un arguments 
-	-- finissant par "
-	local function readString()
-		local arg = args[pos]
-		if arg:sub(-1,-1) == '"' and arg:sub(-2,-1) ~= '\\"' then
-			return arg
-		else
-			pos = pos + 1
-			return (arg .. ' ' .. readString())
-		end
-	end
 	-- boucle principale qui lit les arguments
 	while pos <= nbArgs do
 		local arg = args[pos]
+		print('>', arg)
 		if (arg:sub(1,1) == '-') and (tonumber(arg) ~= nil) then
 			local opsName = arg:sub(2)
-			local trouve, idx = isOptions(opsName)
+			local trouve, idx = isOption(opsName)
 			if trouve then
-				pos = pos + 1
 				if options[idx].param then
-					local val = readVal()
+					pos = pos + 1
+					local val = args[pos]
 					if options[idx].valid(val) then
 						ops[opsName] = val
 					else
@@ -244,20 +233,28 @@ function get(args)
 				usage()
 			end
 		else
-			local v = readVal()
 			if (#param + 1) > #parametres then
 				local indParSup = (#param + 1 - #parametres)
-				if paramsSupl[indParSup].valid(v) then
-					param[#param + 1] = v
+				if indParSup > #paramsSupl then
+					if limit then
+						print("Il y a trop de paramêtres !")
+						usage()
+					else
+						param[#param + 1] = arg
+					end
 				else
-					print("Le type du paramètre n'est pas : " .. paramsSupl[param].strValid)
-					usage()
+					if paramsSupl[indParSup].valid(arg) then
+						param[#param + 1] = arg
+					else
+						print("Le type du "..tostring(#param + 1).." parametre n'est pas : " .. paramsSupl[indParSup].strValid)
+						usage()
+					end
 				end
 			else
-				if parametres[param].valid(v) then
-					param[#param + 1] = v
+				if parametres[#param + 1].valid(arg) then
+					param[#param + 1] = arg
 				else
-					print("Le type du paramètre n'est pas : " .. parametres[param].strValid)
+					print("Le type du "..tostring(#param + 1).." parametre n'est pas : " .. parametres[#param + 1].strValid)
 					usage()
 				end
 			end
@@ -308,12 +305,14 @@ if true then -- Partie test de l'API
 		end, 1)
 	add('longueur','string')
 	add('largeur','number',5)
-	usage('param')
 	p,o = get('90','-o1','-o2','4')
-	for k,v in ipairs(p) do
+	for k,v in pairs(p) do
+		print('parametre : ')
 		print(k,':',v)
 	end
-	for k,v in ipairs(o) do
+	for k,v in pairs(o) do
+		print('option : ')
 		print(k,':',v)
 	end
+	usage('param')
 end
