@@ -1,7 +1,7 @@
 --[[
 +----------------------------------------------------------------------------+
 | Bridge
-| version : 2
+| version : 2.1
 | Auteur : fzed51
 | git : https://github.com/fzed51/CC_Script/blob/master/disk/Bridge_2.lua
 | pastebin : http://pastebin.com/4DZfqyQ6
@@ -16,7 +16,9 @@ dofile('advTurtle') -- http://pastebin.com/7mLzefhQ
 
 -- inventaire
 item.add('coal',1,64)
+setFuelItem(item.coal)
 item.add('cobblestone',2,64)
+item.setup()
 
 --fonctions
 local function round(num)
