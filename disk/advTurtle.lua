@@ -32,7 +32,7 @@ function debugVal( o , niveau)
 	niveau = niveau or 0
 	local function indent(x)
 		local ind = ''
-		while x>0 do ind=ind.."\t"; x=x-1 end
+		while x>0 do ind=ind.."  "; x=x-1 end
 		return ind
 	end
 	local oStr = ''
