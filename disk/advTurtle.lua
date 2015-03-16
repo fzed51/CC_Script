@@ -1,14 +1,14 @@
 --[[
 +----------------------------------------------------------------------------+
 | advTurtle
-| version : 2.6
+| version : 3
 | Auteur : fzed51
 | git : https://github.com/fzed51/CC_Script/blob/master/disk/advTurtle.lua
-| pastebin : http://pastebin.com/7mLzefhQ
+| pastebin : http://pastebin.com/????????
 +----------------------------------------------------------------------------+
 | tag : [lua] [MC] [MineCraft] [CC] [ComputerCraft] [Turtle]
 | Description :
-| bibliotèque de fonction pour la turtle.
+| bibliotÃ¨que de fonction pour la turtle.
 +----------------------------------------------------------------------------+
 ]]--
 
@@ -32,7 +32,7 @@ function debugVal( o , niveau)
 	niveau = niveau or 0
 	local function indent(x)
 		local ind = ''
-		while x>0 do ind=ind.."  "; x=x-1 end
+		while x>0 do ind=ind.."\t"; x=x-1 end
 		return ind
 	end
 	local oStr = ''
@@ -59,89 +59,58 @@ function debugVal( o , niveau)
 	end 
 	return oStr
 end
-
---[[ Paramètes & fonction de l'inventaire ]]--
-function itemCount( slot )
-	myDebug('')
-	local oldSlot, nbItem = activSlot, 0
-	select(slot)
-	for s = 1,16 do
-		if s ~= slot then
-			if turtle.compareTo(s) then
-				nbItem = nbItem + turtle.getItemCount(s)
-			end
-		else
-			nbItem = nbItem + turtle.getItemCount(slot)
+--[[ Fonction diverses ]]--
+function Set (list)
+  local set = {}
+  for _, item in ipairs(list) do set[item] = true end
+  return set
+end
+--[[ ParamÃ¨tes & fonction de l'inventaire ]]--
+function getItemNameInSlot( slot )
+	myDebug('getItemNameInSlot( '..slot..' )')
+	d = turtle.getItemDetail(slot)
+	if d then
+		return d.name
+	end
+	return nil
+end
+function itemCount( items )
+	myDebug('itemCount( '..'items'..' )')
+	local nbItem = 0
+	typeItem = type(items)
+	for s = 1, 16 do
+		if ('table' == typeItem and items[getItemNameInSlot(s)]) or('table' ~= typeItem and getItemNameInSlot(s) == items) then
+			nbItem = nbItem + turtle.getItemCount(s)
 		end
 	end
-	select(oldSlot)
 	return nbItem
 end
-item = {
-	['safe'] = {},
-	['add'] = function(nom, slot, minQte)
-		if item[slot] ~= nil or item[nom] ~= nil then
-			error("Impossible d'enregistrer cet item (" .. tostring(nom)..")!")
-		else
-			item[slot] = nom
-			item[nom] = slot
-			item.safe[slot] = minQte
-		end
-	end,
-	['setup'] = function()
-		print('Veuillez compléter l\'inventaire.')
-		for s = 1,16 do
-			if item[s] ~= nil then
-				print('slot n '..s..' : '..item.safe[s]..' x '..item[s])
-			end
-		end
-		print('Appuyer sur une touche pour continuer.')
-		os.pullEvent('key')
-	end,
-	['test'] = function()
-		local slots, mini, maxi, nbItem = item.safe, true, true, 0
-		for slot, qte in ipairs(slots) do
-			nbItem = itemCount(slot)
-			mini = mini and ( nbItem > 1 )
-			maxi = maxi and ( nbItem > qte )
-		end
-		return mini, maxi
-	end
-}
 local collected = 0
 function collect()
 	collected = collected + 1
 	if math.fmod(collected, 25) == 0 then
-		print( collected.." items miné(s)." )
+		print( collected.." items minÃ©(s)." )
 	end
 end
-local activSlot = 1
+function activSlot( ... )
+	return turtle.getSelectedSlot()
+end
 function select( slot )
 	turtle.select(slot)
-	activSlot = slot
 end
-function trySelect( slot )
-	myDebug('trySelect( '..slot..' )')
-	local slots = {}
-	local nbItem = 0
-	select(slot)
+function trySelect( items )
+	myDebug('trySelect( '..'items'..' )')
+	typeItem = type(items)
 	for s = 16, 1, -1 do
-		if (s ~= slot) then
-			if turtle.compareTo(s) then
-				slots[#slots+1] = s
-			end
+		if ('table' == typeItem and items[getItemNameInSlot(s)]) or('table' ~= typeItem and getItemNameInSlot(s) == items) then
+			select(s)
+			return true
 		end
 	end
-	slots[#slots+1] = slot	
-	if slots[1] ~= slot or turtle.getItemCount(slot) > 1 then
-		select(slots[1])
-		return true
-	else 
-		print("plus de ".. (item[slot] or slot) )
-		return false
-	end
+	print("plus de ".. 'items' )
+	return false
 end
-function inventaireIsFull()
+function inventaireIsFull() 
 	myDebug('inventaireIsFull()')
 	local slotVide = 16
 	for slot = 1,16 do
@@ -178,25 +147,25 @@ function rangeInventaire()
 end
 
 --[[ fonction d'utilisation de l'inventaire ]]--
-function tryPlace( slot )
-	myDebug('tryPlace( '..slot..' )')
-	if not turtle.detect() and  trySelect(slot) then
+function tryPlace( item )
+	myDebug('tryPlace( '..'item'..' )')
+	if not turtle.detect() and  trySelect(item) then
 		return turtle.place()
 	else
 		return false
 	end
 end
-function tryPlaceUp( slot )
-	myDebug('tryPlaceUp( '..slot..' )')
-	if not turtle.detectUp() and trySelect(slot) then
+function tryPlaceUp( item )
+	myDebug('tryPlaceUp( '..'item'..' )')
+	if not turtle.detectUp() and trySelect(item) then
 		return turtle.placeUp()
 	else
 		return false
 	end
 end
-function tryPlaceDown( slot )
-	myDebug('tryPlaceDown( '..slot..' )')
-	if not turtle.detectDown() and trySelect(slot) then
+function tryPlaceDown( item )
+	myDebug('tryPlaceDown( '..'item'..' )')
+	if not turtle.detectDown() and trySelect(item) then
 		return turtle.placeDown()
 	else
 		return false
@@ -215,7 +184,7 @@ function tryDig()
 	while turtle.detect() do
 		if turtle.dig() then
 			collect()
-			sleep(0.5)
+			sleep(0.1)
 		else
 			return false
 		end
@@ -227,7 +196,7 @@ function tryDigUp()
 	while turtle.detectUp() do
 		if turtle.digUp() then
 			collect()
-			sleep(0.5)
+			sleep(0.1)
 		else
 			return false
 		end
@@ -240,7 +209,7 @@ function tryDigDown()
 		if turtle.digDown() then
 			turtle.suckDown()
 			collect()
-			sleep(0.5)
+			sleep(0.1)
 		else
 			return false
 		end
@@ -320,59 +289,111 @@ function DigAround(materials, reverse)
 	turnBack()
 end
 
---[[ fonctions dedéplacement ]]--
-local fuel = {}
-function setFuelItem(newFuel)
+--[[ fonctions dedÃ©placement ]]--
+local fuel = Set {
+	'minecraft:sapling',
+	'minecraft:coal',
+	'minecraft:coal_block',
+	'minecraft:log'
+}
+function setFuelItem(newFuelItem)
 	myDebug('setFuelItem('..newFuel..')')
-	fuel[#fuel + 1] = newFuel
+	fuel[newFuelItem] = true
 end
-function refuel()
-	myDebug('refuel()')
+function refuel(reserve)
+	if type(reserve) == 'nil' then reserve = 0 end
+	myDebug('refuel('.. reserve ..')')
 	local fuelLevel = turtle.getFuelLevel()
-	if fuelLevel == "unlimited" or fuelLevel > 0 then
-		return
-	end
-	
+	local oldSlot = activSlot()
 	local function tryRefuel()
-		local oldSlot = activSlot
-		local function rf(slot)
-			if trySelect(slot) then
-				if turtle.refuel(1) then
-					trySelect(oldSlot)
-					return true
-				end
-			else
-				trySelect(oldSlot)
-				return false
-			end
-		end
-		if #fuel > 0 then
-			for s = 1, #fuel do
-				if rf(fuel[s]) then return true end
-			end
-		else
-			for s = 1,16 do
-				if rf(s) then return true end
-			end
+		if trySelect( fuel ) then
+			return turtle.refuel(1)
 		end
 		return false
 	end
-	
-	if not tryRefuel() then
-		print( "Ajout plus de fuel pour continuer." )
-		while not tryRefuel() do
-			sleep(1)
-		end
-		print( "Retour au tunnel." )
+
+	if fuelLevel == "unlimited" or fuelLevel > reserve then
+		return
 	end
+	while fuelLevel <= reserve do
+		if not tryRefuel() then
+			print( "Ajout plus de fuel pour continuer." )
+			while not tryRefuel() do
+				sleep(1)
+			end
+		end
+		fuelLevel = turtle.getFuelLevel()
+	end
+	select(oldSlot)
 end
+-- Iniertial unit
+inertialUnit = {
+	['x'] = 0,
+	['y'] = 0,
+	['z'] = 0,
+	['d'] = 0,
+	['mouv'] = { 
+		[0]   = { 0, 0, 1},
+		[1]   = { 1, 0, 0},
+		[2]   = { 0, 0,-1},
+		[3]   = {-1, 0, 0},
+		['u'] = { 0, 1, 0},
+		['d'] = { 0,-1, 0}
+	}
+}
+function inertialUnit:new (o)
+	o = o or {}   -- create object if user does not provide one
+	setmetatable(o, self)
+	self.__index = self
+	return o
+end
+function inertialUnit.__tostring(self)
+	return "[ Object inertialUnit {x : ".. self.x ..", y : ".. self.y ..", z : ".. self.z ..", delta : ".. self.d .."} ]"
+end
+function inertialUnit:getPos()
+  return self.x, self.y, self.z, self.d
+end
+function inertialUnit:setPos(x, y, z, d)
+  self.x = x
+  self.y = y
+  self.z = z
+  self.d = d
+end
+function inertialUnit:deplace (mouv)
+	self.x = self.x + mouv[1]
+	self.y = self.y + mouv[2]
+	self.z = self.z + mouv[3]
+end
+function inertialUnit:tourne (angle)
+	self.d = ( self.d + angle ) % 4
+end
+function inertialUnit:forward()
+	self:deplace( self.mouv[ self.d ] )
+end
+function inertialUnit:back()
+	self:deplace( self.mouv[ ( self.d + 2 ) % 4 ] )
+end
+function inertialUnit:up()
+	self:deplace( self.mouv[ 'u' ] )
+end
+function inertialUnit:down()
+	self:deplace( self.mouv[ 'd' ] )
+end
+function inertialUnit:right()
+	self:tourne( 1 )
+end
+function inertialUnit:left()
+	self:tourne( -1 )
+end
+turtle.IU = inertialUnit:new()
+
 function tryUp(autoDig)
 	if autoDig == nil then autoDig = true end
 	myDebug('tryUp()')
 	refuel()
-	local try = 20
+	local try = 10
 	while not turtle.up() do
-		if (not autoDig) and try < 0 then return false end
+		if (not autoDig) or try < 0 then return false end
 		if autoDig and turtle.detectUp() then
 			if not tryDigUp() then
 				return false
@@ -385,15 +406,16 @@ function tryUp(autoDig)
 			try=try-1
 		end
 	end
+	turtle.IU:up()
 	return true
 end
 function tryDown(autoDig)
 	if autoDig == nil then autoDig = true end
 	myDebug('tryDown()')
 	refuel()
-	local try = 20
+	local try = 10
 	while not turtle.down() do
-		if (not autoDig) and try < 0 then return false end
+		if (not autoDig) or try < 0 then return false end
 		if autoDig and turtle.detectDown() then
 			if not tryDigDown() then
 				return false
@@ -406,15 +428,16 @@ function tryDown(autoDig)
 			try=try-1
 		end
 	end
+	turtle.IU:down()
 	return true
 end
 function tryForward(autoDig)
 	if autoDig == nil then autoDig = true end
 	myDebug('tryForward()')
 	refuel()
-	local try = 20
+	local try = 10
 	while not turtle.forward() do
-		if (not autoDig) and try < 0 then return false end
+		if (not autoDig) or try < 0 then return false end
 		if autoDig and turtle.detect() then
 			if not tryDig() then
 				return false
@@ -427,18 +450,23 @@ function tryForward(autoDig)
 			try=try-1
 		end
 	end
+	turtle.IU:forward()
 	return true
 end
 function turnLeft()
 	myDebug('turnLeft()')
+	turtle.IU:left()
 	turtle.turnLeft()
 end
 function turnRight()
 	myDebug('turnRight()')
+	turtle.IU:right()
 	turtle.turnRight()
 end
 function turnBack()
 	myDebug('turnBack()')
+	turtle.IU:left()
 	turtle.turnLeft()
+	turtle.IU:left()
 	turtle.turnLeft()
 end
