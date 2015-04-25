@@ -183,6 +183,7 @@ function tryDig()
 	myDebug('tryDig()')
 	while turtle.detect() do
 		if turtle.dig() then
+			turtle.suck()
 			collect()
 			sleep(0.1)
 		else
@@ -195,6 +196,7 @@ function tryDigUp()
 	myDebug('tryDigUp()')
 	while turtle.detectUp() do
 		if turtle.digUp() then
+			turtle.suckUp()
 			collect()
 			sleep(0.1)
 		else
