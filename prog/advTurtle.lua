@@ -1,10 +1,10 @@
 --[[
 +----------------------------------------------------------------------------+
 | advTurtle
-| version : 3
+| version : 2.6
 | Auteur : fzed51
 | git : https://github.com/fzed51/CC_Script/blob/master/disk/advTurtle.lua
-| pastebin : http://pastebin.com/????????
+| pastebin : http://pastebin.com/7mLzefhQ
 +----------------------------------------------------------------------------+
 | tag : [lua] [MC] [MineCraft] [CC] [ComputerCraft] [Turtle]
 | Description :
@@ -65,6 +65,10 @@ function Set (list)
   for _, item in ipairs(list) do set[item] = true end
   return set
 end
+function Pause ()
+	print ( "Appuyer sur [Entree] pour continuer ..." )
+	read()
+end
 --[[ Paramètes & fonction de l'inventaire ]]--
 function getItemNameInSlot( slot )
 	myDebug('getItemNameInSlot( '..slot..' )')
@@ -96,6 +100,7 @@ function activSlot( ... )
 	return turtle.getSelectedSlot()
 end
 function select( slot )
+ print(type(slot), ':', slot)
 	turtle.select(slot)
 end
 function trySelect( items )
@@ -110,6 +115,16 @@ function trySelect( items )
 	print("plus de ".. 'items' )
 	return false
 end
+function inventaireFree()
+	myDebug('inventaireIsFull()')
+	local slotVide = 0
+	for slot = 1,16 do
+		if turtle.getItemCount(slot) == 0 then
+			slotVide = slotVide + 1
+		end
+	end
+	return slotVide
+end
 function inventaireIsFull() 
 	myDebug('inventaireIsFull()')
 	local slotVide = 16
@@ -122,7 +137,7 @@ function inventaireIsFull()
 end
 function rangeInventaire()
 	myDebug('rangeInventaire()')
-	local oldSlot, selectSlot, lastSlot = activSlot, 1, 16
+	local oldSlot, selectSlot, lastSlot = activSlot(), 1, 16
 	while selectSlot < lastSlot do
 		if turtle.getItemCount(selectSlot) > 0 then
 			select(selectSlot)			
@@ -315,7 +330,7 @@ function refuel(reserve)
 	end
 
 	if fuelLevel == "unlimited" or fuelLevel > reserve then
-		return
+		return true
 	end
 	while fuelLevel <= reserve do
 		if not tryRefuel() then
